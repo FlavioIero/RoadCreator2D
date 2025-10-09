@@ -234,14 +234,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GridTesting
   width: 3
   height: 3
+  maxWidth: 50
+  maxHeight: 50
   cellSize: 10
-  fontSize: 50
+  newStationsPerTurn: 2
   gridMargin: 10
-  maxWidth: 20
-  maxHeight: 20
-  stationsSpawnChance: 0.212
   showDebug: 1
-  gridExpansion: 3
+  fontSize: 50
+  gridExpansion: 1
 --- !u!4 &806250878
 Transform:
   m_ObjectHideFlags: 0

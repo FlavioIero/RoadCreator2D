@@ -1,17 +1,18 @@
 using UnityEngine;
-using CodeMonkey.Utils;
 
 public class GridTesting : MonoBehaviour
 {
     [SerializeField, Min(0)] int width = 3;
     [SerializeField, Min(0)] int height = 3;
-    [SerializeField, Min(0)] float cellSize = 10f;
-    [SerializeField, Min(0)] int fontSize = 30;
-    [SerializeField, Min(0f)] float gridMargin = 10f;
     [SerializeField, Min(0)] int maxWidth = 50;
     [SerializeField, Min(0)] int maxHeight = 50;
-    [SerializeField, Range(0f, 1f)] float stationsSpawnChance = 0.05f;
+    [SerializeField, Min(0)] float cellSize = 10f;
+    [SerializeField, Min(2)] int newStationsPerTurn = 2;
+    [SerializeField, Min(0f)] float gridMargin = 10f;
+
     [SerializeField] bool showDebug = true;
+    [SerializeField, Min(0)] int fontSize = 30;
+
     [SerializeField, Min(0)] int gridExpansion = 1;
 
     private Grid grid;
@@ -20,7 +21,7 @@ public class GridTesting : MonoBehaviour
 
     private void Start()
     {
-        grid = new Grid(width, height, cellSize, maxWidth, maxHeight, stationsSpawnChance, fontSize, showDebug, gridMargin);
+        grid = new Grid(width, height, maxWidth, maxHeight, cellSize, newStationsPerTurn, gridMargin, showDebug, fontSize);
         pathBuilder = gameObject.AddComponent<PathBuilder>();
         pathBuilder.Initialize(grid);
     }
@@ -40,6 +41,11 @@ public class GridTesting : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.C))
         {
             grid.ExpandGrid(gridExpansion);
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            grid.Reset();
         }
     }
 

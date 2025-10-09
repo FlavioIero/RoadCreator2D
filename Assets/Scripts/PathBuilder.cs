@@ -1,4 +1,3 @@
-using CodeMonkey.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,7 +17,7 @@ public class PathBuilder : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Vector3 worldPos = UtilsClass.GetMouseWorldPosition();
+            Vector3 worldPos = Utils.GetMouseWorldPosition();
             grid.GetXY(worldPos, out int x, out int y);
 
             if (grid.GetValue(x, y) == (int)Tile.TileType.Station)
@@ -29,7 +28,7 @@ public class PathBuilder : MonoBehaviour
 
         if (Input.GetMouseButton(0) && isBuilding)
         {
-            Vector3 worldPos = UtilsClass.GetMouseWorldPosition();
+            Vector3 worldPos = Utils.GetMouseWorldPosition();
             grid.GetXY(worldPos, out int x, out int y);
             Vector2Int pos = new Vector2Int(x, y);
 
@@ -52,15 +51,21 @@ public class PathBuilder : MonoBehaviour
 
     private void TryAddToPath(Vector2Int pos)
     {
+        if (pos.x < 0 || pos.y < 0)
+            return;
+        Debug.Log("Pos: " + pos);
+
         Vector2Int prev = currentPath[currentPath.Count - 1];
         Vector2Int dir = pos - prev;
 
+        Debug.Log("dir: " + dir + " lastDir: " + lastDir);
         if (Mathf.Abs(dir.x) + Mathf.Abs(dir.y) != 1)
             return;
 
+        Debug.Log("Direction: " + dir);
         if (currentPath.Count >= 2 && dir == -lastDir)
         {
-            Debug.Log("Removing last");
+            Debug.Log("Direction: Removing last");
             Vector2Int last = currentPath[currentPath.Count - 1];
             grid.SetValue(last.x, last.y, (int)Tile.TileType.Empty);
             currentPath.RemoveAt(currentPath.Count - 1);
@@ -81,7 +86,9 @@ public class PathBuilder : MonoBehaviour
         lastDir = dir;
 
         Tile.TileType trackType = dir.x != 0 ? Tile.TileType.HorTrack : Tile.TileType.VertTrack;
-        grid.SetValue(pos.x, pos.y, (int)trackType);
+
+        if (grid.GetValue(pos.x, pos.y) != (int)Tile.TileType.Station)
+            grid.SetValue(pos.x, pos.y, (int)trackType);
     }
 
     private void EndPath()
@@ -106,5 +113,6 @@ public class PathBuilder : MonoBehaviour
 
         currentPath.Clear();
     }
+
 }
 

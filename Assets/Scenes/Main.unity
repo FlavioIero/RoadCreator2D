@@ -232,10 +232,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffc4c78b672b08d4e86b6c43fc47e726, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridTesting
+  track: {fileID: 3439878776669397900, guid: f7f4dd92fac13234bad8010740fbdb83, type: 3}
+  train: {fileID: 1350686353341748958, guid: 5a40ab2d75fa8e7468ad3e08eb80752a, type: 3}
   width: 3
   height: 3
-  maxWidth: 50
-  maxHeight: 50
+  maxWidth: 30
+  maxHeight: 30
   cellSize: 10
   newStationsPerTurn: 2
   gridMargin: 10

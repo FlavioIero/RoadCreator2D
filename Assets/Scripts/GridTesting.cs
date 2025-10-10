@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class GridTesting : MonoBehaviour
 {
+    [Header("References")]
+    [SerializeField] private GameObject track;
+    [SerializeField] private GameObject train;
+
+    [Header("Grid Settings")]
     [SerializeField, Min(0)] int width = 3;
     [SerializeField, Min(0)] int height = 3;
     [SerializeField, Min(0)] int maxWidth = 50;
@@ -23,7 +28,7 @@ public class GridTesting : MonoBehaviour
     {
         grid = new Grid(width, height, maxWidth, maxHeight, cellSize, newStationsPerTurn, gridMargin, showDebug, fontSize);
         pathBuilder = gameObject.AddComponent<PathBuilder>();
-        pathBuilder.Initialize(grid);
+        pathBuilder.Initialize(grid, track, train);
     }
 
     private void Update()

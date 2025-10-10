@@ -1,16 +1,22 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Splines;
 
 public class PathBuilder : MonoBehaviour
 {
+    [SerializeField] private GameObject track;
+    [SerializeField] private GameObject train;
+
     private Grid grid;
     private List<Vector2Int> currentPath = new List<Vector2Int>();
     private bool isBuilding = false;
     private Vector2Int lastDir;
 
-    public void Initialize(Grid grid)
+    public void Initialize(Grid grid, GameObject track, GameObject train)
     {
         this.grid = grid;
+        this.track = track;
+        this.train = train;
     }
 
     private void Update()
@@ -19,6 +25,7 @@ public class PathBuilder : MonoBehaviour
         {
             Vector3 worldPos = Utils.GetMouseWorldPosition();
             grid.GetXY(worldPos, out int x, out int y);
+            Debug.Log($"Grid.GetValue = " + grid.GetValue(x, y));
 
             if (grid.GetValue(x, y) == (int)Tile.TileType.Station)
             {
@@ -42,6 +49,8 @@ public class PathBuilder : MonoBehaviour
         }
     }
 
+    public Grid GetGrid() => grid;
+
     private void StartPath(Vector2Int start)
     {
         currentPath.Clear();
@@ -53,19 +62,22 @@ public class PathBuilder : MonoBehaviour
     {
         if (pos.x < 0 || pos.y < 0)
             return;
-        Debug.Log("Pos: " + pos);
-
+        
         Vector2Int prev = currentPath[currentPath.Count - 1];
         Vector2Int dir = pos - prev;
+        int tileValue = grid.GetValue(pos.x, pos.y);
 
-        Debug.Log("dir: " + dir + " lastDir: " + lastDir);
+        if (tileValue == -1)
+        {
+            Debug.Log("Out of bounds = val -1");
+            return;
+        }
+            
         if (Mathf.Abs(dir.x) + Mathf.Abs(dir.y) != 1)
             return;
 
-        Debug.Log("Direction: " + dir);
         if (currentPath.Count >= 2 && dir == -lastDir)
         {
-            Debug.Log("Direction: Removing last");
             Vector2Int last = currentPath[currentPath.Count - 1];
             grid.SetValue(last.x, last.y, (int)Tile.TileType.Empty);
             currentPath.RemoveAt(currentPath.Count - 1);
@@ -87,8 +99,10 @@ public class PathBuilder : MonoBehaviour
 
         Tile.TileType trackType = dir.x != 0 ? Tile.TileType.HorTrack : Tile.TileType.VertTrack;
 
-        if (grid.GetValue(pos.x, pos.y) != (int)Tile.TileType.Station)
+        if (tileValue != (int)Tile.TileType.Station)
             grid.SetValue(pos.x, pos.y, (int)trackType);
+        else if (tileValue == (int)Tile.TileType.Station)
+            EndPath();
     }
 
     private void EndPath()
@@ -109,10 +123,37 @@ public class PathBuilder : MonoBehaviour
                 if (grid.GetValue(p.x, p.y) != (int)Tile.TileType.Station)
                     grid.SetValue(p.x, p.y, (int)Tile.TileType.Empty);
             }
+            currentPath.Clear();
+            return;
         }
 
+        CreateTrackFromPath(currentPath);
         currentPath.Clear();
     }
 
-}
+    private void CreateTrackFromPath(List<Vector2Int> pathCells)
+    {
+        // Crea l’oggetto Track
+        GameObject trackObj = Instantiate(track);
+        Track trackComp = trackObj.GetComponent<Track>();
+        SplineContainer spline = trackComp.spline;
 
+        spline.Spline.Clear();
+
+        foreach (var cell in pathCells)
+        {
+            Vector3 worldPos = grid.GetWorldPosition(cell.x, cell.y);
+            spline.Spline.Add(new BezierKnot(worldPos));
+        }
+
+        // Crea il treno
+        GameObject trainObj = Instantiate(train);
+        trackComp.train = trainObj;
+        trainObj.transform.position = spline.Spline[0].Position;
+
+        Vector3 startPos = new Vector3(grid.GetCellSize() * 0.5f, grid.GetCellSize() * 0.5f, 0f);
+        trackComp.Initialize(startPos);
+
+        Debug.Log($"Created track with {pathCells.Count} points");
+    }
+}

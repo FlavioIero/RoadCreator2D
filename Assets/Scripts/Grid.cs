@@ -101,6 +101,12 @@ public class Grid
 
     }
 
+    public Vector3 GetGridOriginOffset()
+    {
+        return new Vector3(-GetGridWorldWidth() / 2f, -GetGridWorldHeight() / 2f, 0f);
+    }
+
+
     public bool HasTypeAround(int x, int y, int type)
     {
         Vector2Int[] dirs = new Vector2Int[] {
@@ -222,13 +228,18 @@ public class Grid
 
     public void GetXY(Vector3 worldPosition, out int x, out int y)
     {
-        x = Mathf.FloorToInt(worldPosition.x / cellSize);
-        y = Mathf.FloorToInt(worldPosition.y / cellSize);
+        Vector3 offset = GetGridOriginOffset();
+        Vector3 adjustedPos = worldPosition - offset;
+
+        x = Mathf.FloorToInt(adjustedPos.x / cellSize);
+        y = Mathf.FloorToInt(adjustedPos.y / cellSize);
     }
+
 
     public Vector3 GetWorldPosition(int x, int y)
     {
-        return new Vector3(x, y) * cellSize;
+        Vector3 offset = GetGridOriginOffset();
+        return new Vector3(x * cellSize, y * cellSize, 0f) + offset;
     }
 
     public float GetGridWorldWidth()
@@ -240,6 +251,8 @@ public class Grid
     {
         return height * cellSize;
     }
+
+    public float GetCellSize() => cellSize;
 
     public void CenterGridView()
     {
@@ -268,7 +281,7 @@ public class Grid
         Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), lineColor, lineDuration);
         Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), lineColor, lineDuration);
 
-        CenterGridView();
+        //CenterGridView();
     }
 
     private void DestroyWorldText(int x, int y)
@@ -292,6 +305,7 @@ public class Grid
     private void ExpandCamera(float increase)
     {
         Camera.main.orthographicSize += increase;
+        Camera.main.transform.position = new Vector3(0, 0, -10f);
     }
 
     private List<Vector2Int> GetPossibleStationSpawnPoints(int offsetX, int offsetY)
